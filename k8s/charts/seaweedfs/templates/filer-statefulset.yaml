@@ -261,7 +261,9 @@ spec:
               readOnly: true
               mountPath: /usr/local/share/ca-certificates/client/
             {{- end }}
-            {{ tpl .Values.filer.extraVolumeMounts . | nindent 12 | trim }}
+            {{- with .Values.filer.extraVolumeMounts }}
+            {{ tpl . $ | nindent 12 | trim }}
+            {{- end }}
           ports:
             - containerPort: {{ .Values.filer.port }}
               name: swfs-filer
@@ -312,31 +314,27 @@ spec:
         {{- include "common.tplvalues.render" (dict "value" .Values.filer.sidecars "context" $) | nindent 8 }}
         {{- end }}
       volumes:
-        {{- if eq .Values.filer.logs.type "hostPath" }}
         - name: seaweedfs-filer-log-volume
+        {{- if eq .Values.filer.logs.type "hostPath" }}
           hostPath:
             path: {{ .Values.filer.logs.hostPathPrefix }}/logs/seaweedfs/filer
             type: DirectoryOrCreate
-        {{- end }}
-        {{- if eq .Values.filer.logs.type "existingClaim" }}
-        - name: seaweedfs-filer-log-volume
+        {{- else if eq .Values.filer.logs.type "existingClaim" }}
           persistentVolumeClaim:
             claimName: {{ .Values.filer.logs.claimName }}
-        {{- end }}
-        {{- if eq .Values.filer.logs.type "emptyDir" }}
-        - name: seaweedfs-filer-log-volume
+        {{- else }}
           emptyDir: {}
         {{- end }}
-        {{- if eq .Values.filer.data.type "hostPath" }}
         - name: data-filer
+        {{- if eq .Values.filer.data.type "hostPath" }}
           hostPath:
             path: {{ .Values.filer.data.hostPathPrefix }}/filer_store
             type: DirectoryOrCreate
-        {{- end }}
-        {{- if eq .Values.filer.data.type "existingClaim" }}
-        - name: data-filer
+        {{- else if eq .Values.filer.data.type "existingClaim" }}
           persistentVolumeClaim:
             claimName: {{ .Values.filer.data.claimName }}
+        {{- else }}
+          emptyDir: {}
         {{- end }}
         {{- if eq .Values.filer.data.type "emptyDir" }}
         - name: data-filer
@@ -380,7 +378,9 @@ spec:
           secret:
             secretName: {{ template "seaweedfs.name" . }}-client-cert
         {{- end }}
-        {{ tpl .Values.filer.extraVolumes . | indent 8 | trim }}
+        {{- with .Values.filer.extraVolumes }}
+        {{ tpl . $ | indent 8 | trim }}
+        {{- end }}
       {{- if .Values.filer.nodeSelector }}
       nodeSelector:
         {{ tpl .Values.filer.nodeSelector . | indent 8 | trim }}

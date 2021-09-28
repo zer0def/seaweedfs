@@ -808,6 +808,13 @@ filer:
     #     anonymousRead: true
     #   - name: bucket-b
     #     anonymousRead: false
+    keys:
+      admin:
+        accessKey: ""
+        secretKey: ""
+      read:
+        accessKey: ""
+        secretKey: ""
 
 s3:
   enabled: false
@@ -911,6 +918,13 @@ s3:
     size: ""
     storageClass: ""
     hostPathPrefix: /storage
+  keys:
+    admin:
+      accessKey: ""
+      secretKey: ""
+    read:
+      accessKey: ""
+      secretKey: ""
 
   extraEnvironmentVars:
 
